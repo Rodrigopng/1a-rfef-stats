@@ -5,6 +5,7 @@ import App from './App.tsx'
 import './index.css' 
 import TeamsPage from "./TeamsPage"
 import Team from './Team.tsx'
+import Standings from './Standings.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -13,7 +14,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<App />} />
         <Route path="/teams" element={<TeamsPage />} />
         <Route path="/:teamShort" element={<Team />} />
-        
+        <Route path="/standings" element={<Standings />} />
+
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
