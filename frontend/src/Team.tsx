@@ -24,7 +24,7 @@ export default function Team() {
   const team = allTeams.find((t) => t.short === teamShort);
 
   if (!team) {
-    return <div className="p-4">Team not found</div>;
+    return <div className="p-4">Page not found</div>;
   }
 
   return (
