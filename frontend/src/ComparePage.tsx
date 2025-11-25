@@ -4,7 +4,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle,  
 } from '@/components/ui/card';
 import {
   Tooltip,
@@ -12,6 +12,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger
+} from "@/components/ui/dialog";
+
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Users } from 'lucide-react';
@@ -19,8 +29,9 @@ import teamsData from './teams.json';
 import { motion, AnimatePresence } from "framer-motion";
 import NavBar from './NavBar';
 import { 
-  TrendingUp, 
+  GitCompare, 
   Calendar,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from "react-router-dom";
@@ -32,6 +43,10 @@ interface Team {
 }
 
 export default function ComparePage() {
+  const [showPopup, setShowPopup] = useState(false);
+  const [splitView, setSplitView] = useState(false)
+
+  const [selectedTeamLeft, setSelectedTeamLeft] = useState<string | null>(null);
   // Search LEFT
   const [searchTermLeft, setSearchTermLeft] = useState('');
   const teamsLeft: Team[] = teamsData['Grupo 1'].concat(teamsData['Grupo 2']);
@@ -41,6 +56,7 @@ export default function ComparePage() {
     team.name.toLowerCase().includes(searchTermLeft.toLowerCase())
   );
 
+  const [selectedTeamRight, setSelectedTeamRight] = useState<string | null>(null);
   // Search RIGHT
   const [searchTermRight, setSearchTermRight] = useState('');
   const teamsRight: Team[] = teamsData['Grupo 1'].concat(teamsData['Grupo 2']);
@@ -67,19 +83,60 @@ export default function ComparePage() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="px-3 py-1">
-                <Calendar className="w-4 h-4 mr-1" />
-                Temporada 2024-25
-              </Badge>
-              <Button>
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Ver Análisis
+              <Button
+                onClick={() => {
+                  if (!selectedTeamLeft || !selectedTeamRight) {
+                    setShowPopup(true);
+                    return;
+                  }
+
+                  if (selectedTeamLeft === selectedTeamRight) {
+                    setShowPopup(true);
+                  } else {
+                    setSplitView(true);
+                  }
+                }}
+                className="
+                  transition-all duration-200
+                  hover:scale-105 hover:shadow-lg
+                  active:scale-95 active:shadow-md
+                "
+              >
+                <GitCompare className="w-4 h-4 mr-2" />
+                Comparar
               </Button>
+
+              {splitView && (
+                <Button
+                  onClick={() => setSplitView(false)}
+                  className="
+                    flex items-center
+                    transition-all duration-200
+                    hover:scale-105 hover:shadow-lg
+                    active:scale-95 active:shadow-md
+                  "
+                  variant="secondary"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Volver
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </header>
+      <Dialog open={showPopup} onOpenChange={setShowPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Selecciona dos equipos distintos</DialogTitle>
+            <DialogDescription>
+              Para comparar, elige un equipo distinto en cada lado.
+            </DialogDescription>
+          </DialogHeader>
 
+          <Button onClick={() => setShowPopup(false)}>Entendido</Button>
+        </DialogContent>
+      </Dialog>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         {/* Search Bar LEFT  */}
@@ -116,7 +173,7 @@ export default function ComparePage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Todos los equipos</span>
+                <span>Seleccionado: {selectedTeamLeft}</span>
                 <Badge variant="secondary">{filteredTeamsLeft.length} equipos</Badge>
               </CardTitle>
             </CardHeader>
@@ -125,41 +182,59 @@ export default function ComparePage() {
               <TooltipProvider delayDuration={100}>
                   {filteredTeamsLeft.length > 0 ? (
                     <div className="flex flex-wrap justify-center gap-4 py-2">
-                      <AnimatePresence mode="popLayout">
-                        {filteredTeamsLeft.map((team) => (
-                          <motion.div
-                            key={team.name}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Link to={`/${team.short}`}>
-                                  <div className="w-20 h-20 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-100 cursor-pointer shadow-sm hover:shadow-md">
+                        <AnimatePresence mode="popLayout">
+                        {filteredTeamsLeft.map((team) => {
+                          const isSelectedLeft = selectedTeamLeft === team.name;
+                          const someoneSelectedLeft = selectedTeamLeft !== null;
+                          return (
+                            <motion.div
+                              key={team.name}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    onClick={() => setSelectedTeamLeft(isSelectedLeft ? null : team.name)}
+                                    className={`
+                                      w-20 h-20 flex items-center justify-center
+                                      bg-white dark:bg-slate-800 rounded-lg
+                                      border transition-all duration-200 cursor-pointer
+                                      shadow-sm
+                                      ${isSelectedLeft
+                                        ? "border-blue-600 shadow-lg scale-110"
+                                        : "border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:shadow-md"
+                                      }
+                                    `}
+                                    style={{
+                                      // Only grayscale when *someone* is selected AND this team is not selected
+                                      filter:
+                                        someoneSelectedLeft && !isSelectedLeft
+                                          ? "grayscale(100%)"
+                                          : "none",
+                                    }}
+                                  >
                                     <img
                                       src={`/src/assets/${team.icon}`}
                                       alt={team.name}
                                       className="w-16 h-16 object-contain"
                                       onError={(e) => {
-                                        const target = e.target;
-                                        if (target instanceof HTMLImageElement) {
-                                          target.src =
-                                            "https://via.placeholder.com/48?text=?";
-                                        }
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = "https://via.placeholder.com/48?text=?";
                                       }}
                                     />
                                   </div>
-                                </Link>
-                              </TooltipTrigger>
+                                </TooltipTrigger>
 
-                              <TooltipContent side="bottom">
-                                <p className="font-semibold">{team.name}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </motion.div>
-                        ))}
+                                <TooltipContent side="bottom">
+                                  <p className="font-semibold">{team.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </motion.div>
+                          );
+                        })}
                       </AnimatePresence>
                     </div>
                   ) : (
@@ -178,61 +253,79 @@ export default function ComparePage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Grupo 2</span>
+                <span>Seleccionado: {selectedTeamRight}</span>
                 <Badge variant="secondary">{filteredTeamsRight.length} equipos</Badge>
               </CardTitle>
             </CardHeader>
 
             <CardContent>
               <TooltipProvider delayDuration={100}>
-                {filteredTeamsRight.length > 0 ? (
-                  <div className="flex flex-wrap justify-center gap-4 py-2">
-                    <AnimatePresence mode="popLayout">
-                      {filteredTeamsRight.map((team) => (
-                        <motion.div
-                          key={team.name}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link to={`/${team.short}`}>
-                                <div className="w-20 h-20 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-100 cursor-pointer shadow-sm hover:shadow-md">
-                                  <img
-                                    src={`/src/assets/${team.icon}`}
-                                    alt={team.name}
-                                    className="w-16 h-16 object-contain"
-                                    onError={(e) => {
-                                      const target = e.target;
-                                      if (target instanceof HTMLImageElement) {
-                                        target.src =
-                                          "https://via.placeholder.com/48?text=?";
+                  {filteredTeamsRight.length > 0 ? (
+                    <div className="flex flex-wrap justify-center gap-4 py-2">
+                        <AnimatePresence mode="popLayout">
+                        {filteredTeamsRight.map((team) => {
+                          const isSelectedRight = selectedTeamRight === team.name;
+                          const someoneSelectedRight = selectedTeamRight !== null;
+                          return (
+                            <motion.div
+                              key={team.name}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    onClick={() => setSelectedTeamRight(isSelectedRight ? null : team.name)}
+                                    className={`
+                                      w-20 h-20 flex items-center justify-center
+                                      bg-white dark:bg-slate-800 rounded-lg
+                                      border transition-all duration-200 cursor-pointer
+                                      shadow-sm
+                                      ${isSelectedRight
+                                        ? "border-blue-600 shadow-lg scale-110"
+                                        : "border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:shadow-md"
                                       }
+                                    `}
+                                    style={{
+                                      // Only grayscale when *someone* is selected AND this team is not selected
+                                      filter:
+                                        someoneSelectedRight && !isSelectedRight
+                                          ? "grayscale(100%)"
+                                          : "none",
                                     }}
-                                  />
-                                </div>
-                              </Link>
-                            </TooltipTrigger>
+                                  >
+                                    <img
+                                      src={`/src/assets/${team.icon}`}
+                                      alt={team.name}
+                                      className="w-16 h-16 object-contain"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = "https://via.placeholder.com/48?text=?";
+                                      }}
+                                    />
+                                  </div>
+                                </TooltipTrigger>
 
-                            <TooltipContent side="bottom">
-                              <p className="font-semibold">{team.name}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2 py-10">
-                    <Search className="w-8 h-8 text-gray-400" />
-                    <p className="text-muted-foreground">
-                      No se encontraron equipos con "{searchTermRight}"
-                    </p>
-                  </div>
-                )}
-              </TooltipProvider>
+                                <TooltipContent side="bottom">
+                                  <p className="font-semibold">{team.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 py-10">
+                      <Search className="w-8 h-8 text-gray-400" />
+                      <p className="text-muted-foreground">
+                        No se encontraron equipos con "{searchTermRight}"
+                      </p>
+                    </div>
+                  )}
+                </TooltipProvider>
             </CardContent>
           </Card>
         </div>
