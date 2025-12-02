@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import {
   Card,
   CardContent,
@@ -101,7 +102,23 @@ export default function Standings() {
                     }}
                 />
                 </TableCell>
-                <TableCell className="font-medium">{team.name}</TableCell>
+                <TableCell className="font-medium">  
+                  <Link
+                    to={`/${team.short}`}
+                    className="
+                      font-medium 
+                      text-blue-600 
+                      hover:text-blue-800 
+                      transition-all 
+                      duration-150 
+                      hover:underline
+                      active:scale-95
+                      inline-block
+                    "
+                  >
+                    {team.name}
+                  </Link>
+                </TableCell>
                 <TableCell>#</TableCell>
                 <TableCell>#</TableCell>
                 <TableCell>#</TableCell>
@@ -155,7 +172,23 @@ export default function Standings() {
                 />
               </TableCell>
 
-              <TableCell className="font-medium">{team.name}</TableCell>
+            <TableCell className="font-medium">  
+              <Link
+                to={`/${team.short}`}
+                className="
+                  font-medium 
+                  text-blue-600 
+                  hover:text-blue-800 
+                  transition-all 
+                  duration-150 
+                  hover:underline
+                  active:scale-95
+                  inline-block
+                "
+              >
+                {team.name}
+              </Link>
+            </TableCell>
             <TableCell>#</TableCell>
             <TableCell>#</TableCell>
             <TableCell>#</TableCell>

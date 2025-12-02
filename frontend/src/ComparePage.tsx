@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from "react-router-dom";
+import TeamSmallCompare from './TeamSmallCompare';
 
 interface Team {
   name: string;
@@ -46,7 +47,12 @@ export default function ComparePage() {
   const [showPopup, setShowPopup] = useState(false);
   const [splitView, setSplitView] = useState(false)
 
-  const [selectedTeamLeft, setSelectedTeamLeft] = useState<string | null>(null);
+  function handleSplitView(newValue: boolean) {
+    setSplitView(newValue);
+    setSelectedTeamLeft(null);
+    setSelectedTeamRight(null);
+  }
+  const [selectedTeamLeft, setSelectedTeamLeft] = useState<Team | null>(null);
   // Search LEFT
   const [searchTermLeft, setSearchTermLeft] = useState('');
   const teamsLeft: Team[] = teamsData['Grupo 1'].concat(teamsData['Grupo 2']);
@@ -56,7 +62,7 @@ export default function ComparePage() {
     team.name.toLowerCase().includes(searchTermLeft.toLowerCase())
   );
 
-  const [selectedTeamRight, setSelectedTeamRight] = useState<string | null>(null);
+  const [selectedTeamRight, setSelectedTeamRight] = useState<Team | null>(null);
   // Search RIGHT
   const [searchTermRight, setSearchTermRight] = useState('');
   const teamsRight: Team[] = teamsData['Grupo 1'].concat(teamsData['Grupo 2']);
@@ -108,7 +114,7 @@ export default function ComparePage() {
 
               {splitView && (
                 <Button
-                  onClick={() => setSplitView(false)}
+                  onClick={() => handleSplitView(false)}
                   className="
                     flex items-center
                     transition-all duration-200
@@ -138,6 +144,14 @@ export default function ComparePage() {
         </DialogContent>
       </Dialog>
 
+      
+      {splitView ? (
+        <div>
+          {selectedTeamLeft && selectedTeamRight && (
+            <TeamSmallCompare teamLeft={selectedTeamLeft} teamRight={selectedTeamRight} />
+          )}
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         {/* Search Bar LEFT  */}
         <Card className="h-full">
@@ -173,7 +187,11 @@ export default function ComparePage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Seleccionado: {selectedTeamLeft}</span>
+                {selectedTeamLeft ? (
+                  <span>Seleccionado: {selectedTeamLeft.name}</span>
+                ) : (
+                  <span></span>
+                )}
                 <Badge variant="secondary">{filteredTeamsLeft.length} equipos</Badge>
               </CardTitle>
             </CardHeader>
@@ -184,7 +202,7 @@ export default function ComparePage() {
                     <div className="flex flex-wrap justify-center gap-4 py-2">
                         <AnimatePresence mode="popLayout">
                         {filteredTeamsLeft.map((team) => {
-                          const isSelectedLeft = selectedTeamLeft === team.name;
+                          const isSelectedLeft = selectedTeamLeft === team;
                           const someoneSelectedLeft = selectedTeamLeft !== null;
                           return (
                             <motion.div
@@ -197,7 +215,7 @@ export default function ComparePage() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div
-                                    onClick={() => setSelectedTeamLeft(isSelectedLeft ? null : team.name)}
+                                    onClick={() => setSelectedTeamLeft(isSelectedLeft ? null : team)}
                                     className={`
                                       w-20 h-20 flex items-center justify-center
                                       bg-white dark:bg-slate-800 rounded-lg
@@ -253,7 +271,11 @@ export default function ComparePage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Seleccionado: {selectedTeamRight}</span>
+                {selectedTeamRight ? (
+                  <span>Seleccionado: {selectedTeamRight.name}</span>
+                ) : (
+                  <span></span>
+                )}                
                 <Badge variant="secondary">{filteredTeamsRight.length} equipos</Badge>
               </CardTitle>
             </CardHeader>
@@ -264,7 +286,7 @@ export default function ComparePage() {
                     <div className="flex flex-wrap justify-center gap-4 py-2">
                         <AnimatePresence mode="popLayout">
                         {filteredTeamsRight.map((team) => {
-                          const isSelectedRight = selectedTeamRight === team.name;
+                          const isSelectedRight = selectedTeamRight === team;
                           const someoneSelectedRight = selectedTeamRight !== null;
                           return (
                             <motion.div
@@ -277,7 +299,7 @@ export default function ComparePage() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div
-                                    onClick={() => setSelectedTeamRight(isSelectedRight ? null : team.name)}
+                                    onClick={() => setSelectedTeamRight(isSelectedRight ? null : team)}
                                     className={`
                                       w-20 h-20 flex items-center justify-center
                                       bg-white dark:bg-slate-800 rounded-lg
@@ -329,6 +351,8 @@ export default function ComparePage() {
             </CardContent>
           </Card>
         </div>
+      )}
+
       </div>
     </div>
   );
