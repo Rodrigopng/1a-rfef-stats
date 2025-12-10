@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import teamsData from './teams.json';
 import NavBar from './NavBar';
 import { 
   TrendingUp, 
@@ -22,16 +21,14 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
+import { useTeams } from "./context/TeamsContext";
 
-interface Team {
-  name: string;
-  icon: string;
-  short: string;
-}
 
 export default function Standings() {
-  const grupo1Teams: Team[] = teamsData['Grupo 1'];
-  const grupo2Teams: Team[] = teamsData['Grupo 2'];
+  const { teams, loading } = useTeams();
+  if (loading) return <div>Loading...</div>;
+  const grupo1Teams = teams?.["Grupo 1"] ?? [];
+  const grupo2Teams = teams?.["Grupo 2"] ?? [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">

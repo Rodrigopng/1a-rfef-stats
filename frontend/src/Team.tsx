@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import teams from "./teams.json";
 import NavBar from "./NavBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,12 +15,18 @@ import {
   Award,
 } from 'lucide-react';
 import TeamSmall from "./TeamSmall";
+import { useTeams } from "./context/TeamsContext";
+
 export default function Team() {
   const { teamShort } = useParams();
 
   // Flatten both groups
-  const allTeams = [...teams["Grupo 1"], ...teams["Grupo 2"]];
-
+  // TODO: TAKE FROM API NOT FROM JSON LOCAL
+  const { teams, loading } = useTeams();
+  if (loading) return <div>Loading...</div>;
+  const grupo1Teams = teams?.["Grupo 1"] ?? [];
+  const grupo2Teams = teams?.["Grupo 2"] ?? [];
+  const allTeams = [...grupo1Teams,...grupo2Teams];
   const team = allTeams.find((t) => t.short === teamShort);
 
   if (!team) {

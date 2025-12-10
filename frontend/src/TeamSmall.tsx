@@ -1,12 +1,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Activity, Trophy, Award } from "lucide-react"
-
-export interface Team {
-  name: string
-  icon: string
-  short: string
-}
+import type { Team } from "./types";
 
 interface TeamSmallProps {
   team: Team
@@ -21,7 +16,7 @@ export default function TeamSmall({ team }: TeamSmallProps) {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Activity className="w-5 h-5 mr-2 text-blue-500" />
-            Últimos Partidos de {team.name}
+            Últimos Partidos de {team.name} en el grupo {team.group}
           </CardTitle>
           <CardDescription>
             Resultados más recientes de la competición

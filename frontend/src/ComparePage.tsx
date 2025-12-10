@@ -25,7 +25,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Users } from 'lucide-react';
-import teamsData from './teams.json';
 import { motion, AnimatePresence } from "framer-motion";
 import NavBar from './NavBar';
 import { 
@@ -34,16 +33,16 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from "react-router-dom";
+import type { Team } from "./types/team";
 import TeamSmallCompare from './TeamSmallCompare';
-
-interface Team {
-  name: string;
-  icon: string;
-  short: string;
-}
+import { useTeams } from "./context/TeamsContext";
 
 export default function ComparePage() {
+  const { teams, loading } = useTeams();
+  if (loading) return <div>Loading...</div>;
+  const grupo1Teams = teams?.["Grupo 1"] ?? [];
+  const grupo2Teams = teams?.["Grupo 2"] ?? [];
+
   const [showPopup, setShowPopup] = useState(false);
   const [splitView, setSplitView] = useState(false)
 
@@ -55,7 +54,7 @@ export default function ComparePage() {
   const [selectedTeamLeft, setSelectedTeamLeft] = useState<Team | null>(null);
   // Search LEFT
   const [searchTermLeft, setSearchTermLeft] = useState('');
-  const teamsLeft: Team[] = teamsData['Grupo 1'].concat(teamsData['Grupo 2']);
+  const teamsLeft = [...grupo1Teams, ...grupo2Teams];
 
   // Filtrar equipos por búsqueda
   const filteredTeamsLeft = teamsLeft.filter((team) =>
@@ -65,7 +64,7 @@ export default function ComparePage() {
   const [selectedTeamRight, setSelectedTeamRight] = useState<Team | null>(null);
   // Search RIGHT
   const [searchTermRight, setSearchTermRight] = useState('');
-  const teamsRight: Team[] = teamsData['Grupo 1'].concat(teamsData['Grupo 2']);
+  const teamsRight = [...grupo1Teams, ...grupo2Teams];
 
   // Filtrar equipos por búsqueda
   const filteredTeamsRight = teamsRight.filter((team) =>

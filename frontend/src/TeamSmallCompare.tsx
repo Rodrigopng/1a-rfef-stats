@@ -1,12 +1,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Activity, Trophy, Award } from "lucide-react"
-
-export interface Team {
-  name: string
-  icon: string
-  short: string
-}
+import type { Team } from "./types";
 
 interface TeamSmallCompareProps {
   teamLeft: Team

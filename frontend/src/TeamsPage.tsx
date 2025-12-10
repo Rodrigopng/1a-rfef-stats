@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -15,7 +15,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Users } from 'lucide-react';
-import teamsData from './teams.json';
 import { motion, AnimatePresence } from "framer-motion";
 import NavBar from './NavBar';
 import { 
@@ -24,17 +23,16 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from "react-router-dom";
-
-interface Team {
-  name: string;
-  icon: string;
-  short: string;
-}
+import { useTeams } from "./context/TeamsContext";
 
 export default function TeamsPage() {
+  const { teams, loading } = useTeams();
+  if (loading) return <div>Loading...</div>;
+  const grupo1Teams = teams?.["Grupo 1"] ?? [];
+  const grupo2Teams = teams?.["Grupo 2"] ?? [];
+
+  // TODO: refactor team data into 1/2 fields and replace local json data. 
   const [searchTerm, setSearchTerm] = useState('');
-  const grupo1Teams: Team[] = teamsData['Grupo 1'];
-  const grupo2Teams: Team[] = teamsData['Grupo 2'];
 
   // Filtrar equipos por búsqueda
   const filteredTeams1 = grupo1Teams.filter((team) =>
@@ -44,7 +42,6 @@ export default function TeamsPage() {
   const filteredTeams2 = grupo2Teams.filter((team) =>
     team.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <NavBar/>
